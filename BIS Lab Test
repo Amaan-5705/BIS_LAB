@@ -1,0 +1,57 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Objective function
+def f(x):
+    return x[0]**2 + x[1]**2
+
+# Parameters
+n_particles = 20
+iterations = 50
+w, c1, c2 = 0.5, 1.5, 1.5
+
+# Initialize
+X = np.random.uniform(-10, 10, (n_particles, 2))
+V = np.random.uniform(-1, 1, (n_particles, 2))
+
+pbest = X.copy()
+pbest_val = np.array([f(x) for x in X])
+
+gbest = pbest[np.argmin(pbest_val)]
+gbest_val = np.min(pbest_val)
+
+history = []
+
+# PSO loop
+for _ in range(iterations):
+    for i in range(n_particles):
+        r1, r2 = np.random.rand(), np.random.rand()
+
+        # Update velocity and position
+        V[i] = w*V[i] + c1*r1*(pbest[i] - X[i]) + c2*r2*(gbest - X[i])
+        X[i] += V[i]
+
+        # Evaluate
+        val = f(X[i])
+
+        # Update personal best
+        if val < pbest_val[i]:
+            pbest[i] = X[i].copy()
+            pbest_val[i] = val
+
+    # Update global best
+    gbest = pbest[np.argmin(pbest_val)]
+    gbest_val = np.min(pbest_val)
+
+    history.append(gbest_val)
+
+print("Best position:", gbest)
+print("Best value:", gbest_val)
+
+# Plot convergence
+plt.plot(history)
+plt.xlabel("Iteration")
+plt.ylabel("Best Value")
+plt.title("PSO Convergence")
+plt.grid()
+plt.show()
